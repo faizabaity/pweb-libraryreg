@@ -10,7 +10,7 @@ Project ini dibuat sebagai landing page sekolah berbasis multi-page sederhana. W
 
 - **Beranda:** Hero section, profil perpustakaan, layanan perputakaan.
 - **Pendaftaran:** Form pendaftaran anggota perpustakaan.
-- **Data Anggota:** List anggota perpustakaan yang berhasil terdaftar.
+- **Data Anggota:** Cari anggota berdasarkan nama atau NRP, lihat dan edit detail, serta hapus anggota dengan dialog konfirmasi. Data pendaftaran dan perubahan disimpan di browser.
 - **Footer:** Informasi jam pelayanan & kontak (telepon dan email).
 
 ---
