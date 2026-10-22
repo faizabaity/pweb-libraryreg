@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Lihat daftar anggota yang terdaftar di LibraryReg."
+      content="Cari, lihat, edit, dan kelola data anggota yang terdaftar di LibraryReg."
     >
     <title>Data Anggota | LibraryReg</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,42 +66,187 @@
     <main class="members-main">
       <div class="page-heading">
         <h1>Data Anggota</h1>
-        <p>Daftar anggota perpustakaan yang telah terdaftar di LibraryReg.</p>
+        <p>Kelola daftar anggota perpustakaan, cari data, lihat detail, edit, dan hapus akun anggota.</p>
       </div>
-
-      <div class="form-feedback registration-success" id="membersFeedback" role="status" aria-live="polite" hidden>
-        Pendaftaran berhasil. Data anggota telah ditambahkan.
-      </div>
-      <div class="form-feedback form-feedback-error" id="membersError" role="alert" hidden></div>
 
       <section class="members-card" aria-labelledby="members-title">
         <div class="members-card-heading">
           <div>
             <h2 id="members-title">Daftar Anggota</h2>
-            <p id="membersCount">Memuat data anggota...</p>
+            <p>Cari anggota berdasarkan nama atau nomor identitas, lalu pilih aksi untuk melihat detail, edit, atau hapus data.</p>
           </div>
-          <a class="btn btn-primary submit-button" href="pendaftaran.html">Tambah Anggota</a>
+          <span class="members-count" id="membersCount">0 Anggota</span>
         </div>
+
+        <label class="members-search" for="memberSearch">
+          <img src="assets/icons/search.svg" alt="" class="search-icon">
+          <input
+            class="form-control"
+            id="memberSearch"
+            type="search"
+            placeholder="Cari nama atau nomor identitas"
+            autocomplete="off"
+          >
+        </label>
 
         <div class="members-table-wrap" tabindex="0" aria-label="Daftar anggota, geser tabel ke samping untuk melihat semua kolom">
           <table class="table members-table">
             <thead>
               <tr>
-                <th scope="col">No.</th>
                 <th scope="col">Nama Lengkap</th>
-                <th scope="col">NRP</th>
+                <th scope="col">Nomor Identitas</th>
                 <th scope="col">Program Studi</th>
                 <th scope="col">Jenis Anggota</th>
-                <th scope="col">Alamat</th>
-                <th scope="col">Nomor Telepon</th>
-                <th scope="col">Email</th>
+                <th scope="col">Aksi</th>
               </tr>
             </thead>
             <tbody id="membersTableBody"></tbody>
           </table>
           <p class="members-empty" id="membersEmpty" hidden>Belum ada anggota yang terdaftar.</p>
+          <p class="members-empty" id="membersNoResults" hidden>Tidak ada anggota yang cocok dengan pencarian.</p>
         </div>
       </section>
+
+      <div
+        class="toast-container position-fixed top-0 end-0 p-3"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <div class="toast member-toast" id="membersToast" role="status">
+          <div class="toast-body">
+            <span id="membersToastMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Tutup notifikasi"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade member-modal" id="detailModal" tabindex="-1" aria-labelledby="detailModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <section class="modal-content member-dialog detail-dialog">
+            <header class="member-dialog-heading">
+              <h2 id="detailModalTitle">Detail Anggota</h2>
+              <p>Informasi lengkap anggota berdasarkan data pendaftaran.</p>
+            </header>
+            <div class="dialog-fields">
+              <div class="dialog-field">
+                <span>Nama Lengkap</span>
+                <p id="detailFullName"></p>
+              </div>
+              <div class="dialog-field">
+                <span>Nomor Registrasi Pokok/NRP</span>
+                <p id="detailNrp"></p>
+              </div>
+              <div class="dialog-field">
+                <span>Program Studi</span>
+                <p id="detailMajor"></p>
+              </div>
+              <div class="dialog-field">
+                <span>Jenis Anggota</span>
+                <p id="detailMemberType"></p>
+              </div>
+              <div class="dialog-field dialog-field-wide">
+                <span>Alamat</span>
+                <p id="detailAddress"></p>
+              </div>
+              <div class="dialog-field">
+                <span>Nomor Telepon</span>
+                <p id="detailPhone"></p>
+              </div>
+              <div class="dialog-field">
+                <span>Email</span>
+                <p id="detailEmail"></p>
+              </div>
+            </div>
+            <footer class="member-dialog-actions">
+              <button class="btn btn-outline-secondary dialog-button" type="button" data-bs-dismiss="modal">Tutup</button>
+            </footer>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal fade member-modal" id="editModal" tabindex="-1" aria-labelledby="editModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <section class="modal-content member-dialog">
+            <header class="member-dialog-heading">
+              <h2 id="editModalTitle">Edit Data Anggota</h2>
+              <p>Perbarui informasi anggota yang sudah terdaftar.</p>
+            </header>
+            <form id="editMemberForm" novalidate>
+              <div class="dialog-fields">
+                <div class="dialog-field">
+                  <label for="editFullName">Nama Lengkap</label>
+                  <input class="form-control" id="editFullName" name="fullName" type="text" autocomplete="name" required>
+                </div>
+                <div class="dialog-field">
+                  <label for="editNrp">Nomor Registrasi Pokok/NRP</label>
+                  <input class="form-control" id="editNrp" name="nrp" type="text" inputmode="numeric" required>
+                  <span class="field-error" id="editNrpError"></span>
+                </div>
+                <div class="dialog-field">
+                  <label for="editMajor">Program Studi</label>
+                  <input class="form-control" id="editMajor" name="major" type="text" required>
+                </div>
+                <fieldset class="dialog-field">
+                  <legend>Jenis Anggota</legend>
+                  <div class="membership-options">
+                    <label class="membership-option">
+                      <input type="radio" name="memberType" value="Mahasiswa" required>
+                      <span>Mahasiswa</span>
+                    </label>
+                    <label class="membership-option">
+                      <input type="radio" name="memberType" value="Dosen" required>
+                      <span>Dosen</span>
+                    </label>
+                    <label class="membership-option">
+                      <input type="radio" name="memberType" value="Staf" required>
+                      <span>Staf</span>
+                    </label>
+                  </div>
+                </fieldset>
+                <div class="dialog-field dialog-field-wide">
+                  <label for="editAddress">Alamat</label>
+                  <input class="form-control" id="editAddress" name="address" type="text" autocomplete="street-address" required>
+                </div>
+                <div class="dialog-field">
+                  <label for="editPhone">Nomor Telepon</label>
+                  <input class="form-control" id="editPhone" name="phone" type="tel" autocomplete="tel" required>
+                </div>
+                <div class="dialog-field">
+                  <label for="editEmail">Email</label>
+                  <input class="form-control" id="editEmail" name="email" type="email" autocomplete="email" required>
+                </div>
+              </div>
+              <div class="member-dialog-actions">
+                <button class="btn btn-outline-secondary dialog-button" type="button" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary dialog-button dialog-primary" type="submit">Simpan Perubahan</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal fade member-modal" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <section class="modal-content member-dialog delete-dialog">
+            <header class="member-dialog-heading">
+              <h2 id="deleteModalTitle">Hapus Data Anggota</h2>
+              <p>Pastikan Anda ingin menghapus akun anggota ini secara permanen.</p>
+            </header>
+            <div class="delete-summary">
+              <strong id="deleteFullName"></strong>
+              <span id="deleteNrp"></span>
+              <span id="deleteMajor"></span>
+              <span id="deleteMemberType"></span>
+            </div>
+            <footer class="member-dialog-actions">
+              <button class="btn btn-outline-secondary dialog-button" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary dialog-button dialog-primary" id="confirmDeleteButton" type="button">Hapus Data</button>
+            </footer>
+          </section>
+        </div>
+      </div>
+
+      <div class="form-feedback form-feedback-error members-storage-error" id="membersStorageError" role="alert" hidden></div>
     </main>
 
     <footer class="site-footer" id="kontak">
